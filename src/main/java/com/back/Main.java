@@ -31,8 +31,24 @@ public class Main {
 
                 for (int i = count - 1; i >= 0; i--) {
                     WiseSaying ws = wiseSayings[i];
+                    if(ws == null)continue;
                     System.out.println(ws.id + " / " + ws.author + " / " + ws.content);
                 }
+            } else if (cmd.startsWith("삭제?id=")) {
+                int id =Integer.parseInt(cmd.substring(6));
+                boolean found = false;
+                for(int i = 0; i < count; i++) {
+                    if(wiseSayings[i] != null && wiseSayings[i].id == id){
+                        wiseSayings[i] =null;
+                        found = true;
+                    }
+                }
+                if(found){
+                    System.out.println(id + "번 명언이 삭제 되었습니다.");
+                }else{
+                    System.out.println(id +"번 명언은 존재하지 않습니다.");
+                }
+
             }
         }
         sc.close();
