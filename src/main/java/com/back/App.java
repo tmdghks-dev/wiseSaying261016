@@ -22,21 +22,18 @@ public class App {
             System.out.print("명령) ");
             // cmd = 입력받고 trim
             String cmd = sc.nextLine().trim();
-            // 종료면 → break
-            if(cmd.equals("종료")){
-                break;
-                // 등록이면 → actionWrite()
-            } else if(cmd.equals("등록")){
-                actionWrite();
-                // 목록이면 → actionList()
-            } else if(cmd.equals("목록")){
-                actionList();
-                // "삭제?id="로 시작하면 → actionDelete(cmd)
-            }else if(cmd.startsWith("삭제?id=")){
-                actionDelete(cmd); // ✅ 통째로 넘김 (자르는 건 actionDelete 안에서 한 번만)
-                // "수정?id="로 시작하면 → actionModify(cmd)
-            }else if(cmd.startsWith("수정?id=")){
-                actionModify(cmd); // ✅ 위와 같은 이유
+            // cmd를 Rq로 해석 ("삭제?id=1" → 이름 "삭제" / 서랍장 {id=1})
+            Rq rq = new Rq(cmd);
+
+            // 모던 switch로 명령 분기
+            switch (rq.getActionName()) {
+                case "종료" -> {
+                    return; // ✅ break는 switch만 빠져나감 → return으로 run() 자체를 끝냄
+                }
+                case "등록" -> actionWrite();
+                case "목록" -> actionList();
+                case "삭제" -> actionDelete(rq);
+                case "수정" -> actionModify(rq);
             }
             // while 끝
 
@@ -93,9 +90,14 @@ public class App {
     }
 
     // ===== 삭제 =====
-    private void actionDelete(String cmd) {
-        // id = cmd.substring(6)을 Integer.parseInt로 숫자로
-        int id = Integer.parseInt(cmd.substring(6));
+    private void actionDelete(Rq rq) {
+        // id = rq에서 숫자로 꺼내기 (없거나 숫자가 아니면 -1)
+        int id = rq.getParamAsInt("id", -1);
+
+        if (id == -1) {
+            System.out.println("id를 숫자로 입력해주세요.");
+            return;
+        }
         // delete(id) 결과를 boolean deleted에 받기
         boolean deleted = delete(id);
         // deleted가 false면 → "?번 명언은 존재하지 않습니다." 출력하고 return;
@@ -112,9 +114,14 @@ public class App {
     }
 
     // ===== 수정 =====
-    private void actionModify(String cmd) {
-        // id = cmd.substring(6)을 숫자로
-        int id = Integer.parseInt(cmd.substring(6));
+    private void actionModify(Rq rq) {
+        // id = rq에서 숫자로 꺼내기 (없거나 숫자가 아니면 -1)
+        int id = rq.getParamAsInt("id", -1);
+
+        if (id == -1) {
+            System.out.println("id를 숫자로 입력해주세요.");
+            return;
+        }
         // findById(id)로 찾기
         WiseSaying wiseSaying = findById(id); // ✅ 찾은 걸 변수에 담음
         // null이면 → "?번 명언은 존재하지 않습니다." 출력하고 return;
